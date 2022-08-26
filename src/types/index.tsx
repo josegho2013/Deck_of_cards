@@ -1,19 +1,21 @@
 export type CardType = {
-  image: string
-  value: string
-  suits: string
   code: string
+  value: string
+  image: string
+  suits: string
 }
-
-// card: 'A',
-// color: 'red',
-// index: '1'
 
 export type DeckType = {
   id: string
   remaining: number
-  lastQueenPosition: number
-  cards: CardType[] | []
+  indexQueen: number
   listCards: CardType[] | []
   orderedCards: CardType[] | []
+}
+
+export type CardProps = {
+  index: number
+  shuffle: any
+  src: string
+  alt?: string
 }

@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 export const getNewDeck = async () => {
-  console.log('entro')
   const req = await axios.get(
     'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1'
   )

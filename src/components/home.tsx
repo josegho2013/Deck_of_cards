@@ -4,22 +4,36 @@ import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import { getCards, getNewDeck } from '../service'
 import { cardsList } from '../constants'
-import { DeckType, CardType } from '../types'
+import { DeckType } from '../types'
+import { Card } from './card'
+import '../styles/index.css'
 
 export default function Home () {
-  const [hideButton, setHideButton] = React.useState(false)
+  const [hideButton, setHideButton] = React.useState(true)
+  const [showCards, setShowCards] = React.useState(false)
+  const [cards, setCards] = React.useState<any[]>([])
+  const [shuffle, setShuffle] = React.useState('')
   const [deck, setDeck] = React.useState<DeckType>({
     id: '',
     remaining: 0,
-    lastQueenPosition: 0,
-    cards: [],
+    indexQueen: 0,
     listCards: [],
     orderedCards: []
   })
-  const [cards, setCards] = React.useState([])
 
   const onGetDeck = async () => {
-    // setHideButton(true)
+    setCards([])
+    setShuffle('')
+    setShowCards(false)
+    setHideButton(false)
+    setDeck({
+      id: '',
+      remaining: 0,
+      indexQueen: 0,
+      listCards: [],
+      orderedCards: []
+    })
+
     const newDeck = await getNewDeck()
     if (newDeck.success) {
       const allCards = await getCards(newDeck.deck_id)
@@ -30,91 +44,83 @@ export default function Home () {
           return (queenIndex = index)
         }
       })
-
       const listCards = allCards.cards?.filter(
         (_: any, index: number) => index <= queenIndex
       )
-      const orderedCards = listCards.sort(
-        (n1: any, n2: any) => cardsList[n1.code] - cardsList[n2.code]
-      )
-      if (orderedCards) {
-        setCards(orderedCards)
+      const orderedCards = allCards.cards
+        ?.filter((_: any, index: number) => index <= queenIndex)
+        .sort((n1: any, n2: any) => cardsList[n1.code] - cardsList[n2.code])
+
+      if (orderedCards.length > 0) {
         setDeck({
           id: newDeck.deck_id,
           remaining: newDeck.remaining,
-          lastQueenPosition: queenIndex,
-          cards: allCards.cards,
-          orderedCards: orderedCards,
-          listCards
+          indexQueen: queenIndex,
+          listCards: listCards,
+          orderedCards: orderedCards
         })
+        setCards(listCards)
+        setShuffle('FilterList')
       }
-
-      console.log('1.queenIndex: ', queenIndex)
-      console.log('2.allCards: ', allCards)
-      console.log('3.orderedCards: ', orderedCards)
-      console.log('4.deck: ', deck)
     }
   }
 
   const onDealCards = () => {
-    console.log('5.cards: ', cards)
+    setShowCards(true)
     setHideButton(true)
+
+    setTimeout(() => {
+      setShuffle('HIDDEN')
+      setTimeout(() => {
+        setShuffle('OrderedList')
+        setCards(deck.orderedCards)
+      }, (deck.indexQueen + 1) * 100)
+    }, (deck.indexQueen + 1) * 1000 + 1000)
   }
 
   return (
-    <Box
-      sx={{
-        display: 'block',
-        flexWrap: 'wrap',
-        '& > :not(style)': {
-          m: 1,
-          width: 128,
-          height: 128
-        }
-      }}
-    >
-      <Paper
-        elevation={3}
-        style={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'space-evenly',
-          alignItems: 'center'
-        }}
-      >
+    <Box className='container'>
+      <Paper elevation={3} className='navbar'>
         <Button
-          style={{ width: '200px', height: '50px' }}
+          className='general_button btn-left'
           disabled={hideButton}
           variant='contained'
           onClick={onDealCards}
         >
-          Deal
+          Deal Cards
         </Button>
         <Button
-          style={{ width: '200px', height: '50px' }}
+          className='general_button btn-right'
           variant='outlined'
           onClick={onGetDeck}
         >
-          New deck
+          New Deck
         </Button>
       </Paper>
 
-      <Paper elevation={3}>
-        {deck.orderedCards &&
-          deck.orderedCards.map(item => {
-            return (
-              <img
-                style={{
-                  width: '100px',
-                  height: '134px',
-                  borderRadius: '5px'
-                }}
-                src={item.image}
-                alt={item.code}
-              />
-            )
-          })}
-      </Paper>
+      {showCards && (
+        <Paper className='card-container' elevation={3}>
+          {cards &&
+            cards?.map((item, index) => {
+              return (
+                <Card
+                  key={index}
+                  src={item.image}
+                  alt={item.value}
+                  index={index}
+                  shuffle={shuffle}
+                />
+              )
+            })}
+        </Paper>
+      )}
+      {!showCards && (
+        <Paper className='empty-state' elevation={3}>
+          <h3>To start, press the "New Deck" button to get a new deck.</h3>
+          <h3>Then press "Deel Card" to shuffle it and draw all the queens.</h3>
+          <h2>Good luck!</h2>
+        </Paper>
+      )}
     </Box>
   )
 }
