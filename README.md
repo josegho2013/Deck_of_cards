@@ -23,11 +23,22 @@ Next, in the project directory, you can execute:
 npm start
 ```
 
+Deployed Project Here  Link: https://deck-of-card.vercel.app/
+
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
+
+## Technologies Used
+-React <br/>
+-Material UI<br/>
+-Typescript<br/>
+-Axios<br/>
+-react-router-dom v6<br/>
+-react-spring
+
 
 ## Learn More
 
